@@ -28,6 +28,26 @@ def parsear(path: Path) -> datetime:
     return datetime.strptime(fecha + hora[:6], "%Y%m%d%H%M%S")
 
 
+def textos_previos() -> dict:
+    ruta = ROOT / "data.js"
+    if not ruta.exists():
+        return {}
+    texto = ruta.read_text(encoding="utf-8").strip()
+    if texto.startswith("const DIARIO = "):
+        texto = texto[len("const DIARIO = "):]
+    if texto.endswith(";"):
+        texto = texto[:-1]
+    try:
+        datos = json.loads(texto)
+    except json.JSONDecodeError:
+        return {}
+    return {
+        dia["id"]: {"titulo": dia.get("titulo", ""), "nota": dia.get("nota", "")}
+        for dia in datos
+        if isinstance(dia, dict) and "id" in dia
+    }
+
+
 def optimizar(origen: Path, destino: Path) -> None:
     destino.parent.mkdir(parents=True, exist_ok=True)
     if destino.exists() and destino.stat().st_mtime >= origen.stat().st_mtime:
@@ -189,6 +209,18 @@ def construir() -> None:
                 item["poster"] = fotos[0]
 
     diario = [grupos[clave] for clave in sorted(grupos)]
+    previos = textos_previos()
+    diario = [
+        {
+            "id": dia["id"],
+            "fecha": dia["fecha"],
+            "dia": dia["dia"],
+            "titulo": previos.get(dia["id"], {}).get("titulo", ""),
+            "nota": previos.get(dia["id"], {}).get("nota", ""),
+            "items": dia["items"],
+        }
+        for dia in diario
+    ]
     (ROOT / "data.js").write_text(
         "const DIARIO = " + json.dumps(diario, ensure_ascii=False, indent=2) + ";\n",
         encoding="utf-8",

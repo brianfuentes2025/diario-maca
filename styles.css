@@ -247,6 +247,7 @@ body.abierta .lluvia { opacity: 0; }
 
 .fecha-cab {
   max-width: 46%;
+  margin-left: auto;
   text-align: right;
   font-family: var(--mano);
   font-size: clamp(1.25rem, 2vw, 1.7rem);

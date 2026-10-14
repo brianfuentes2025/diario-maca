@@ -48,14 +48,6 @@ function prepararAmbiente() {
   }
 }
 
-function momento(dia) {
-  const hora = Number(String(dia.items[0]?.hora || "").slice(0, 2));
-  if (Number.isNaN(hora)) return "Un recuerdo";
-  if (hora < 12) return "Por la mañana";
-  if (hora < 19) return "Por la tarde";
-  return "Por la noche";
-}
-
 function folio(numero) {
   return String(numero).padStart(2, "0");
 }
@@ -68,6 +60,7 @@ function escapar(texto) {
 }
 
 function cabecera(titulo, fecha, extra, numero) {
+  const encabezado = titulo ? `<h3>${escapar(titulo)}</h3>` : "";
   return `
     <header class="cabecera">
       <div class="cabecera-sup">
@@ -75,7 +68,7 @@ function cabecera(titulo, fecha, extra, numero) {
         <p class="edicion">Plana ${folio(numero)}</p>
       </div>
       <div class="cabecera-main">
-        <h3>${titulo}</h3>
+        ${encabezado}
         <p class="fecha-cab">${fecha}</p>
       </div>
     </header>
@@ -89,10 +82,10 @@ function htmlPortada() {
       <div class="marco-portada">
         <p class="masthead">Volumen I</p>
         <p class="sello">FC</p>
-        <h1>Diario de vida</h1>
+        <h1>Diario de anécdotas</h1>
         <p class="dedicado">Para Maca</p>
         <p class="fecha-tapa">Feliz cumpleaños</p>
-        <p class="arco">Nov 2025 — Sep 2026</p>
+        <p class="arco">Historias de Nov 2025 — Sep 2026</p>
         <button id="abrir-tapa" type="button">Abrir</button>
       </div>
     </article>`;
@@ -109,9 +102,8 @@ function htmlIndice(entradas, esInicio, cuentas) {
     </li>`).join("");
   const intro = esInicio ? `
       <p class="saludo">Índice</p>
-      <p class="pista-indice">Elegí un día, o empezá a hojear desde la primera plana.</p>
+      <p class="pista-indice">Elige un día, o empieza a hojear desde la primera plana.</p>
       <ul class="fichas fichas-indice">
-        <li><strong>${cuentas.dias}</strong><span>días</span></li>
         <li><strong>${cuentas.fotos}</strong><span>fotos</span></li>
         <li><strong>${cuentas.videos}</strong><span>videos</span></li>
       </ul>` : `
@@ -185,7 +177,7 @@ function htmlDia(dia, numero, total) {
 
   return `
     <article class="hoja${densa ? " densa" : ""}">
-      ${cabecera(momento(dia), dia.fecha, detalle, numero)}
+      ${cabecera(dia.titulo || "", dia.fecha, detalle, numero)}
       <div class="${clase}">${piezasDia}</div>
       <p class="nota-hoja">${escapar(dia.nota)}</p>
       <footer class="colofon"><span>Para Maca</span><span>${folio(numero)}</span></footer>
@@ -295,7 +287,7 @@ function abrirLibreta() {
   app.innerHTML = `
     <div class="libro tapa">
       <header class="revista-barra">
-        <p>Diario de vida</p>
+        <p>Diario de anécdotas</p>
         <p>Para Maca</p>
       </header>
       <button id="pasar-atras" class="pasar" type="button" aria-label="Hoja anterior"><span aria-hidden="true">‹</span><small>Anterior</small></button>

@@ -3,6 +3,8 @@ const DIARIO = [
     "id": "2025-11-09",
     "fecha": "9 de noviembre de 2025",
     "dia": "domingo",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -16,6 +18,8 @@ const DIARIO = [
     "id": "2025-11-12",
     "fecha": "12 de noviembre de 2025",
     "dia": "miércoles",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -29,6 +33,8 @@ const DIARIO = [
     "id": "2025-11-19",
     "fecha": "19 de noviembre de 2025",
     "dia": "miércoles",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -42,6 +48,8 @@ const DIARIO = [
     "id": "2026-01-25",
     "fecha": "25 de enero de 2026",
     "dia": "domingo",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -68,6 +76,8 @@ const DIARIO = [
     "id": "2026-02-07",
     "fecha": "7 de febrero de 2026",
     "dia": "sábado",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -87,6 +97,8 @@ const DIARIO = [
     "id": "2026-02-08",
     "fecha": "8 de febrero de 2026",
     "dia": "domingo",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "video",
@@ -101,6 +113,8 @@ const DIARIO = [
     "id": "2026-02-14",
     "fecha": "14 de febrero de 2026",
     "dia": "sábado",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -156,6 +170,8 @@ const DIARIO = [
     "id": "2026-02-15",
     "fecha": "15 de febrero de 2026",
     "dia": "domingo",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -169,6 +185,8 @@ const DIARIO = [
     "id": "2026-03-28",
     "fecha": "28 de marzo de 2026",
     "dia": "sábado",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -188,6 +206,8 @@ const DIARIO = [
     "id": "2026-04-19",
     "fecha": "19 de abril de 2026",
     "dia": "domingo",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -201,6 +221,8 @@ const DIARIO = [
     "id": "2026-04-25",
     "fecha": "25 de abril de 2026",
     "dia": "sábado",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -256,6 +278,8 @@ const DIARIO = [
     "id": "2026-05-15",
     "fecha": "15 de mayo de 2026",
     "dia": "viernes",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -269,6 +293,8 @@ const DIARIO = [
     "id": "2026-05-23",
     "fecha": "23 de mayo de 2026",
     "dia": "sábado",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -288,6 +314,8 @@ const DIARIO = [
     "id": "2026-06-07",
     "fecha": "7 de junio de 2026",
     "dia": "domingo",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -319,6 +347,8 @@ const DIARIO = [
     "id": "2026-06-27",
     "fecha": "27 de junio de 2026",
     "dia": "sábado",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -332,6 +362,8 @@ const DIARIO = [
     "id": "2026-07-04",
     "fecha": "4 de julio de 2026",
     "dia": "sábado",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -345,6 +377,8 @@ const DIARIO = [
     "id": "2026-07-30",
     "fecha": "30 de julio de 2026",
     "dia": "jueves",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -358,6 +392,8 @@ const DIARIO = [
     "id": "2026-08-02",
     "fecha": "2 de agosto de 2026",
     "dia": "domingo",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -371,6 +407,8 @@ const DIARIO = [
     "id": "2026-08-15",
     "fecha": "15 de agosto de 2026",
     "dia": "sábado",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -415,6 +453,8 @@ const DIARIO = [
     "id": "2026-08-29",
     "fecha": "29 de agosto de 2026",
     "dia": "sábado",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -446,6 +486,8 @@ const DIARIO = [
     "id": "2026-09-06",
     "fecha": "6 de septiembre de 2026",
     "dia": "domingo",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -483,6 +525,8 @@ const DIARIO = [
     "id": "2026-09-08",
     "fecha": "8 de septiembre de 2026",
     "dia": "martes",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
@@ -520,6 +564,8 @@ const DIARIO = [
     "id": "2026-09-09",
     "fecha": "9 de septiembre de 2026",
     "dia": "miércoles",
+    "titulo": "",
+    "nota": "",
     "items": [
       {
         "tipo": "foto",
