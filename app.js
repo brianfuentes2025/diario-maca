@@ -13,6 +13,7 @@ let indiceVisor = 0;
 let indiceHoja = 0;
 let piezas = [];
 let animando = false;
+let volteando = false;
 let toqueX = null;
 
 function giroDe(texto) {
@@ -55,42 +56,62 @@ function momento(dia) {
   return "Por la noche";
 }
 
-function cabecera(titulo, fecha, extra) {
+function folio(numero) {
+  return String(numero).padStart(2, "0");
+}
+
+function cabecera(titulo, fecha, extra, numero) {
   return `
     <header class="cabecera">
-      <div>
+      <div class="cabecera-sup">
         <p class="masthead">Diario de vida</p>
-        <h3>${titulo}</h3>
+        <p class="edicion">Plana ${folio(numero)}</p>
       </div>
-      <p class="fecha-cab">${fecha}</p>
+      <div class="cabecera-main">
+        <h3>${titulo}</h3>
+        <p class="fecha-cab">${fecha}</p>
+      </div>
     </header>
+    <div class="filete" aria-hidden="true"></div>
     ${extra ? `<p class="nota-dia">${extra}</p>` : ""}`;
 }
 
 function htmlPortada() {
   return `
     <article class="hoja portada">
-      <p class="masthead">FC · Nº 01</p>
-      <h1>Diario de vida</h1>
-      <p class="dedicado">Para Maca</p>
-      <p class="fecha-tapa">Feliz cumpleaños</p>
+      <div class="marco-portada">
+        <p class="masthead">Volumen I</p>
+        <p class="sello">FC</p>
+        <h1>Diario de vida</h1>
+        <p class="dedicado">Para Maca</p>
+        <p class="fecha-tapa">Feliz cumpleaños</p>
+        <p class="arco">Nov 2025 — Sep 2026</p>
+      </div>
     </article>`;
 }
 
-function htmlDedicatoria() {
+function htmlDedicatoria(cuentas) {
+  const desde = DIARIO[0]?.fecha || "";
+  const hasta = DIARIO[DIARIO.length - 1]?.fecha || "";
   return `
     <article class="hoja carta">
-      ${cabecera("Para vos", "Nov 2025 — Sep 2026", "")}
+      ${cabecera("Para vos", "La primera plana", "", 2)}
       <p class="saludo">Maca,</p>
-      <p>Este diario junta los días que fuimos guardando. Cada plana tiene su fecha, su título y las fotos de ese momento.</p>
-      <p>Pasa la revista hacia la derecha. Si hay un video, se ve en la misma página.</p>
-      <button id="pasar-titulo" type="button">Abrir la siguiente plana</button>
+      <p>Este diario ordena los días que quedaron guardados, del ${desde} al ${hasta}. Cada plana lleva su fecha, el momento del día y las fotos de esa hora.</p>
+      <ul class="fichas">
+        <li><strong>${cuentas.dias}</strong><span>días</span></li>
+        <li><strong>${cuentas.fotos}</strong><span>fotos</span></li>
+        <li><strong>${cuentas.videos}</strong><span>videos</span></li>
+      </ul>
+      <p class="pista-hoja">Hojéala como una revista. Si hay un video, se mueve solo, en bucle, mientras esa plana está abierta.</p>
+      <button id="pasar-titulo" type="button">Hojear la siguiente</button>
     </article>`;
 }
 
 function htmlDia(dia, numero, total) {
   const fotos = dia.items.filter((item) => item.tipo === "foto");
-  const clase = fotos.length <= 1 ? "recuerdos uno" : "recuerdos";
+  const videos = dia.items.filter((item) => item.tipo === "video");
+  const clase = fotos.length <= 1 && !videos.length ? "recuerdos uno" : fotos.length >= 6 ? "recuerdos muchas" : "recuerdos";
   const horas = dia.items.map((item) => item.hora);
   const rango = horas.length > 1 ? `${horas[0]} – ${horas[horas.length - 1]}` : horas[0] || "";
   const piezasDia = dia.items.map((item) => {
@@ -98,8 +119,9 @@ function htmlDia(dia, numero, total) {
       const poster = item.poster ? ` poster="${item.poster}"` : "";
       return `
         <figure class="film">
-          <video preload="metadata" playsinline${poster} src="${item.src}"></video>
-          <button class="ver-video" type="button">Ver video · ${item.hora}</button>
+          <video muted loop playsinline preload="metadata"${poster} src="${item.src}"></video>
+          <figcaption>${item.hora}</figcaption>
+          <button class="ver-video" type="button" hidden>Ver video</button>
           <p class="aviso-video" hidden>Este video no se pudo reproducir.</p>
         </figure>`;
     }
@@ -113,19 +135,25 @@ function htmlDia(dia, numero, total) {
       </button>`;
   }).join("");
   const diaNombre = `${dia.dia.charAt(0).toUpperCase()}${dia.dia.slice(1)}`;
+  const detalle = [
+    diaNombre,
+    rango,
+    fotos.length ? `${fotos.length} ${fotos.length === 1 ? "foto" : "fotos"}` : "",
+    videos.length ? `${videos.length} ${videos.length === 1 ? "video" : "videos"}` : "",
+  ].filter(Boolean).join(" · ");
 
   return `
     <article class="hoja">
-      ${cabecera(momento(dia), dia.fecha, `${diaNombre}${rango ? ` · ${rango}` : ""}`)}
+      ${cabecera(momento(dia), dia.fecha, detalle, numero)}
       <div class="${clase}">${piezasDia}</div>
-      <p class="num-pagina">${numero} / ${total}</p>
+      <footer class="colofon"><span>Para Maca</span><span>${folio(numero)}</span></footer>
     </article>`;
 }
 
 function htmlFinal(numero, total) {
   return `
     <article class="hoja cierre">
-      ${cabecera("Hoy es tu día", "Feliz cumpleaños", "La última plana del diario.")}
+      ${cabecera("Hoy es tu día", "Feliz cumpleaños", "La última plana del diario.", numero)}
       <div class="velas" id="grupo-velas" aria-hidden="true">
         <span class="vela"><span class="llama"></span></span>
         <span class="vela"><span class="llama"></span></span>
@@ -133,8 +161,12 @@ function htmlFinal(numero, total) {
       </div>
       <p id="deseo" hidden>¡Feliz cumpleaños, Maca!</p>
       <button id="velas" type="button">Sopla las velas</button>
-      <p class="num-pagina">${numero} / ${total}</p>
+      <footer class="colofon"><span>Para Maca</span><span>${folio(numero)}</span></footer>
     </article>`;
+}
+
+function conLado(html, lado) {
+  return html.replace('class="hoja', `class="hoja ${lado}`);
 }
 
 function htmlPliegos(paginas) {
@@ -143,9 +175,9 @@ function htmlPliegos(paginas) {
     const derecha = paginas[i + 1] || `<article class="hoja vacia"></article>`;
     pliegos.push(`
       <section class="pliego ${i === 0 ? "activa" : "espera"}">
-        <div class="plana izquierda">${paginas[i]}</div>
+        <div class="plana izquierda">${conLado(paginas[i], "lado-izq")}</div>
         <div class="lomo" aria-hidden="true"></div>
-        <div class="plana derecha">${derecha}</div>
+        <div class="plana derecha">${conLado(derecha, "lado-der")}</div>
       </section>`);
   }
   return pliegos.join("");
@@ -154,21 +186,33 @@ function htmlPliegos(paginas) {
 function abrirLibreta() {
   document.body.classList.add("abierta");
   galeria = [];
+  const cuentas = DIARIO.reduce((total, dia) => {
+    dia.items.forEach((item) => {
+      if (item.tipo === "foto") total.fotos += 1;
+      if (item.tipo === "video") total.videos += 1;
+    });
+    return total;
+  }, { dias: DIARIO.length, fotos: 0, videos: 0 });
   const dias = DIARIO.map((dia, i) => htmlDia(dia, i + 3, DIARIO.length + 3));
-  const paginas = [htmlPortada(), htmlDedicatoria(), ...dias, htmlFinal(DIARIO.length + 3, DIARIO.length + 3)];
+  const paginas = [htmlPortada(), htmlDedicatoria(cuentas), ...dias, htmlFinal(DIARIO.length + 3, DIARIO.length + 3)];
   if (paginas.length % 2) paginas.push(`<article class="hoja vacia"></article>`);
   app.innerHTML = `
     <div class="libro">
-      <button id="pasar-atras" class="pasar" type="button" aria-label="Planas anteriores">‹</button>
+      <header class="revista-barra">
+        <p>Diario de vida</p>
+        <p>Para Maca</p>
+      </header>
+      <button id="pasar-atras" class="pasar" type="button" aria-label="Hoja anterior"><span aria-hidden="true">‹</span><small>Anterior</small></button>
       <div class="ventana" id="ventana">
         <div id="riel">${htmlPliegos(paginas)}</div>
+        <button id="canto-atras" class="canto canto-izq" type="button" aria-label="Hoja anterior"></button>
+        <button id="canto-adelante" class="canto canto-der" type="button" aria-label="Hojear"></button>
       </div>
-      <button id="pasar-adelante" class="pasar" type="button" aria-label="Planas siguientes">›</button>
+      <button id="pasar-adelante" class="pasar" type="button" aria-label="Hojear"><span aria-hidden="true">›</span><small>Hojear</small></button>
       <p class="contador" id="contador"></p>
     </div>`;
   indiceHoja = 0;
   mostrarHoja(0);
-  requestAnimationFrame(() => document.getElementById("riel").classList.add("animable"));
 }
 
 function listaHojas() {
@@ -180,45 +224,120 @@ function mostrarHoja(nueva) {
   indiceHoja = Math.max(0, Math.min(hojas.length - 1, nueva));
   hojas.forEach((hoja, i) => {
     hoja.classList.toggle("activa", i === indiceHoja);
+    hoja.classList.remove("debajo");
     hoja.classList.toggle("pasada", i < indiceHoja);
     hoja.classList.toggle("espera", i > indiceHoja);
-    if (i !== indiceHoja) {
-      hoja.querySelectorAll("video").forEach((video) => video.pause());
-    }
+    hoja.querySelectorAll("video").forEach((video) => {
+      if (i === indiceHoja) reproducirGif(video);
+      else video.pause();
+    });
   });
-  document.getElementById("pasar-atras").disabled = indiceHoja === 0;
-  document.getElementById("pasar-adelante").disabled = indiceHoja === hojas.length - 1;
+  const alInicio = indiceHoja === 0;
+  const alFinal = indiceHoja === hojas.length - 1;
+  document.getElementById("pasar-atras").disabled = alInicio;
+  document.getElementById("canto-atras").disabled = alInicio;
+  document.getElementById("pasar-adelante").disabled = alFinal;
+  document.getElementById("canto-adelante").disabled = alFinal;
   const desde = indiceHoja * 2 + 1;
-  document.getElementById("contador").textContent = `Planas ${desde} – ${desde + 1}`;
+  document.getElementById("contador").textContent = `Planas ${folio(desde)} – ${folio(desde + 1)}`;
+}
+
+function hojaDe(pliego, lado) {
+  return pliego.querySelector(`.plana.${lado} .hoja`);
 }
 
 function pasar(delta) {
-  if (!delta) return;
-  mostrarHoja(indiceHoja + delta);
+  if (!delta || volteando) return;
+  const destino = indiceHoja + delta;
+  const hojas = listaHojas();
+  if (destino < 0 || destino >= hojas.length) return;
+  const reducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reducido) {
+    mostrarHoja(destino);
+    return;
+  }
+  voltear(delta);
+}
+
+function voltear(delta) {
+  const hojas = listaHojas();
+  const actual = hojas[indiceHoja];
+  const siguiente = hojas[indiceHoja + delta];
+  const adelante = delta > 0;
+  const frenteNodo = hojaDe(actual, adelante ? "derecha" : "izquierda");
+  const reversoNodo = hojaDe(siguiente, adelante ? "izquierda" : "derecha");
+  if (!frenteNodo || !reversoNodo) {
+    mostrarHoja(indiceHoja + delta);
+    return;
+  }
+
+  volteando = true;
+  document.body.classList.add("hojeando");
+  actual.querySelectorAll("video").forEach((video) => video.pause());
+  siguiente.classList.add("debajo");
+  siguiente.classList.remove("espera", "pasada");
+
+  const huecoFrente = frenteNodo.parentElement;
+  const huecoReverso = reversoNodo.parentElement;
+  const vuelta = document.createElement("div");
+  vuelta.className = `vuelta ${adelante ? "adelante" : "atras"}`;
+  const caraFrente = document.createElement("div");
+  caraFrente.className = "cara frente";
+  const caraReverso = document.createElement("div");
+  caraReverso.className = "cara reverso";
+  caraFrente.appendChild(frenteNodo);
+  caraReverso.appendChild(reversoNodo);
+  vuelta.append(caraFrente, caraReverso);
+  document.getElementById("ventana").appendChild(vuelta);
+
+  let cerrado = false;
+  const terminar = () => {
+    if (cerrado) return;
+    cerrado = true;
+    huecoFrente.appendChild(frenteNodo);
+    huecoReverso.appendChild(reversoNodo);
+    vuelta.remove();
+    siguiente.classList.remove("debajo");
+    mostrarHoja(indiceHoja + delta);
+    volteando = false;
+    document.body.classList.remove("hojeando");
+  };
+  vuelta.addEventListener("animationend", (evento) => {
+    if (evento.target === vuelta) terminar();
+  });
+  window.setTimeout(terminar, 1200);
+}
+
+function reproducirGif(video) {
+  const film = video.closest(".film");
+  const boton = film?.querySelector(".ver-video");
+  const aviso = film?.querySelector(".aviso-video");
+  video.muted = true;
+  video.loop = true;
+  video.playsInline = true;
+  video.controls = false;
+  const intento = video.play();
+  if (!intento) return;
+  intento.then(() => {
+    if (boton) boton.hidden = true;
+    if (aviso) aviso.hidden = true;
+  }).catch(() => {
+    if (boton) boton.hidden = false;
+  });
 }
 
 function reproducirVideo(boton) {
-  const film = boton.closest(".film");
-  const video = film.querySelector("video");
-  const aviso = film.querySelector(".aviso-video");
-  document.querySelectorAll("video").forEach((otro) => {
-    if (otro !== video) otro.pause();
-  });
-  video.controls = true;
-  boton.hidden = true;
-  aviso.hidden = true;
-  video.play().catch(() => {
-    boton.hidden = false;
-    aviso.hidden = false;
-  });
+  const video = boton.closest(".film")?.querySelector("video");
+  if (video) reproducirGif(video);
 }
 
 function alClick(evento) {
-  if (evento.target.id === "pasar-titulo" || evento.target.id === "pasar-adelante") {
+  const boton = evento.target.closest("button");
+  if (boton && (boton.id === "pasar-titulo" || boton.id === "pasar-adelante" || boton.id === "canto-adelante")) {
     pasar(1);
     return;
   }
-  if (evento.target.id === "pasar-atras") {
+  if (boton && (boton.id === "pasar-atras" || boton.id === "canto-atras")) {
     pasar(-1);
     return;
   }
@@ -326,8 +445,8 @@ function alPointerUp(evento) {
   if (toqueX == null) return;
   const delta = evento.clientX - toqueX;
   toqueX = null;
-  if (Math.abs(delta) < 60) return;
-  pasar(delta > 0 ? 1 : -1);
+  if (Math.abs(delta) < 70 || volteando) return;
+  pasar(delta < 0 ? 1 : -1);
 }
 
 visor.addEventListener("click", (evento) => {
@@ -353,11 +472,3 @@ window.addEventListener("pointerup", alPointerUp);
 ajustarLienzo();
 prepararAmbiente();
 abrirLibreta();
-document.addEventListener("ended", (evento) => {
-  if (evento.target.tagName !== "VIDEO") return;
-  const boton = evento.target.closest(".film")?.querySelector(".ver-video");
-  if (boton) {
-    boton.hidden = false;
-    boton.textContent = "Ver otra vez";
-  }
-}, true);
