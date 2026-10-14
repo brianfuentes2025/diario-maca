@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Diario de vida · Para Maca</title>
+  <meta name="description" content="Una libreta de cumpleaños con los días, las fotos y los videos de Maca.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📒</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="cielo" id="globos" aria-hidden="true"></div>
+  <div class="lluvia" id="lluvia" aria-hidden="true"></div>
+  <canvas id="confeti" aria-hidden="true"></canvas>
+
+  <div id="app"></div>
+
+  <div id="visor" hidden>
+    <div class="visor-fondo" data-cerrar="1"></div>
+    <figure class="visor-marco">
+      <button class="visor-cerrar" type="button" data-cerrar="1">Cerrar</button>
+      <button id="visor-prev" class="visor-flecha" type="button" aria-label="Anterior">‹</button>
+      <img id="visor-img" alt="">
+      <video id="visor-video" controls playsinline></video>
+      <button id="visor-next" class="visor-flecha" type="button" aria-label="Siguiente">›</button>
+      <figcaption id="visor-pie"></figcaption>
+    </figure>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
