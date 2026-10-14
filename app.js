@@ -126,7 +126,10 @@ function htmlIndice(entradas, esInicio, cuentas) {
 }
 
 function claseRecuerdos(fotos, videos, dia) {
-  if (videos.length && fotos.length >= 5) return "recuerdos plano-video";
+  if (videos.length && fotos.length >= 5) {
+    return dia.id === "2026-08-15" ? "recuerdos plano-video foto-tres" : "recuerdos plano-video";
+  }
+  if (dia.id === "2026-02-14") return "recuerdos ultima";
   if (fotos.length >= 8) return "recuerdos ocho";
   if (dia.id === "2026-09-06") return "recuerdos penultima";
   if (dia.id === "2026-09-08") return "recuerdos extremos";
@@ -249,7 +252,7 @@ function armarPaginas(cuentas) {
     "",
     "",
     ...dias,
-    `<article class="hoja vacia"></article>`,
+    `<article class="hoja vacia"><p class="sigue-hoja">Sigue</p></article>`,
     htmlCarta(numeroCarta),
     htmlFinal(numeroCarta + 1, numeroCarta + 1),
   ];
