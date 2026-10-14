@@ -19,7 +19,7 @@ let toqueX = null;
 function giroDe(texto) {
   let valor = 0;
   for (const letra of texto) valor = (valor * 33 + letra.charCodeAt(0)) % 997;
-  return (valor % 7) - 3;
+  return ((valor % 9) - 4) * 1.4;
 }
 
 function prepararAmbiente() {
@@ -108,9 +108,11 @@ function htmlDedicatoria(cuentas) {
     </article>`;
 }
 
-function claseRecuerdos(fotos, videos) {
+function claseRecuerdos(fotos, videos, dia) {
   if (videos.length && fotos.length >= 5) return "recuerdos plano-video";
   if (fotos.length >= 8) return "recuerdos ocho";
+  if (dia.id === "2026-09-06") return "recuerdos penultima";
+  if (dia.id === "2026-09-08") return "recuerdos extremos";
   if (fotos.length >= 5) return "recuerdos cinco";
   if (fotos.length <= 1 && !videos.length) return "recuerdos uno";
   return "recuerdos";
@@ -119,19 +121,20 @@ function claseRecuerdos(fotos, videos) {
 function htmlDia(dia, numero, total) {
   const fotos = dia.items.filter((item) => item.tipo === "foto");
   const videos = dia.items.filter((item) => item.tipo === "video");
-  const clase = claseRecuerdos(fotos, videos);
+  const clase = claseRecuerdos(fotos, videos, dia);
   const densa = fotos.length >= 5;
   const horas = dia.items.map((item) => item.hora);
   const rango = horas.length > 1 ? `${horas[0]} – ${horas[horas.length - 1]}` : horas[0] || "";
   const piezasDia = dia.items.map((item) => {
     if (item.tipo === "video") {
       const poster = item.poster ? ` poster="${item.poster}"` : "";
-      const horizontal = item.src.includes("20260815_180132");
-      const video = `<video muted loop playsinline preload="metadata"${poster} src="${item.src}"></video>`;
       return `
-        <figure class="film${horizontal ? " horizontal" : ""}">
-          ${horizontal ? `<div class="giro-video">${video}</div>` : video}
-          <figcaption>${item.hora}</figcaption>
+        <figure class="film">
+          <video muted loop playsinline preload="metadata"${poster} src="${item.src}"></video>
+          <div class="film-pie">
+            <figcaption>${item.hora}</figcaption>
+            <button class="audio-video" type="button" aria-pressed="false">Oír video</button>
+          </div>
           <button class="ver-video" type="button" hidden>Ver video</button>
           <p class="aviso-video" hidden>Este video no se pudo reproducir.</p>
         </figure>`;
@@ -178,14 +181,19 @@ function htmlCarta(numero) {
 function htmlFinal(numero, total) {
   return `
     <article class="hoja cierre">
-      ${cabecera("Hoy es tu día", "Feliz cumpleaños", "La última plana del diario.", numero)}
-      <div class="velas" id="grupo-velas" aria-hidden="true">
-        <span class="vela"><span class="llama"></span></span>
-        <span class="vela"><span class="llama"></span></span>
-        <span class="vela"><span class="llama"></span></span>
+      ${cabecera("Hoy es tu día", "Feliz cumpleaños", "", numero)}
+      <div class="fiesta">
+        <p class="brindis">Cierra los ojos y pide un deseo</p>
+        <div class="torta" id="grupo-velas" aria-hidden="true">
+          <span class="vela alta"><span class="llama"></span></span>
+          <span class="vela"><span class="llama"></span></span>
+          <span class="vela baja"><span class="llama"></span></span>
+          <span class="vela media"><span class="llama"></span></span>
+          <span class="vela"><span class="llama"></span></span>
+        </div>
+        <p id="deseo" hidden>¡Feliz cumpleaños, Maca!</p>
+        <button id="velas" type="button">Sopla las velas</button>
       </div>
-      <p id="deseo" hidden>¡Feliz cumpleaños, Maca!</p>
-      <button id="velas" type="button">Sopla las velas</button>
       <footer class="colofon"><span>Para Maca</span><span>${folio(numero)}</span></footer>
     </article>`;
 }
@@ -220,7 +228,14 @@ function abrirLibreta() {
   }, { dias: DIARIO.length, fotos: 0, videos: 0 });
   const dias = DIARIO.map((dia, i) => htmlDia(dia, i + 3, DIARIO.length + 4));
   const numeroCarta = DIARIO.length + 3;
-  const paginas = [htmlPortada(), htmlDedicatoria(cuentas), ...dias, htmlCarta(numeroCarta), htmlFinal(numeroCarta + 1, numeroCarta + 1)];
+  const paginas = [
+    htmlPortada(),
+    htmlDedicatoria(cuentas),
+    ...dias,
+    `<article class="hoja vacia"></article>`,
+    htmlCarta(numeroCarta),
+    htmlFinal(numeroCarta + 1, numeroCarta + 1),
+  ];
   if (paginas.length % 2) paginas.push(`<article class="hoja vacia"></article>`);
   app.innerHTML = `
     <div class="libro">
@@ -350,7 +365,7 @@ function reproducirGif(video) {
   const film = video.closest(".film");
   const boton = film?.querySelector(".ver-video");
   const aviso = film?.querySelector(".aviso-video");
-  video.muted = true;
+  video.muted = video.dataset.conSonido !== "1";
   video.loop = true;
   video.playsInline = true;
   video.controls = false;
@@ -369,6 +384,28 @@ function reproducirVideo(boton) {
   if (video) reproducirGif(video);
 }
 
+function alternarSonido(boton) {
+  const video = boton.closest(".film")?.querySelector("video");
+  if (!video) return;
+  const activar = video.muted;
+  document.querySelectorAll(".film video").forEach((otro) => {
+    if (otro === video) return;
+    otro.muted = true;
+    delete otro.dataset.conSonido;
+    const otroBoton = otro.closest(".film")?.querySelector(".audio-video");
+    if (otroBoton) {
+      otroBoton.setAttribute("aria-pressed", "false");
+      otroBoton.textContent = "Oír video";
+    }
+  });
+  video.muted = !activar;
+  if (activar) video.dataset.conSonido = "1";
+  else delete video.dataset.conSonido;
+  boton.setAttribute("aria-pressed", activar ? "true" : "false");
+  boton.textContent = activar ? "Silenciar" : "Oír video";
+  if (activar) video.play().catch(() => {});
+}
+
 function alClick(evento) {
   const boton = evento.target.closest("button");
   if (boton && (boton.id === "pasar-titulo" || boton.id === "pasar-adelante" || boton.id === "canto-adelante")) {
@@ -377,6 +414,10 @@ function alClick(evento) {
   }
   if (boton && (boton.id === "pasar-atras" || boton.id === "canto-atras")) {
     pasar(-1);
+    return;
+  }
+  if (boton && boton.classList.contains("audio-video")) {
+    alternarSonido(boton);
     return;
   }
   const video = evento.target.closest(".ver-video");
