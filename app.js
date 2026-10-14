@@ -247,11 +247,20 @@ function htmlFinal(numero, total) {
       <div class="fiesta">
         <p class="brindis">Cierra los ojos y pide un deseo</p>
         <div class="torta" id="grupo-velas" aria-hidden="true">
-          <span class="vela alta"><span class="llama"></span></span>
-          <span class="vela"><span class="llama"></span></span>
-          <span class="vela baja"><span class="llama"></span></span>
-          <span class="vela media"><span class="llama"></span></span>
-          <span class="vela"><span class="llama"></span></span>
+          <span class="plato"></span>
+          <span class="piso piso-bajo">
+            <span class="cinta-torta"></span>
+            <span class="mono"></span>
+          </span>
+          <span class="piso piso-alto"></span>
+          <span class="guinda g1"></span>
+          <span class="guinda g2"></span>
+          <span class="guinda g3"></span>
+          <span class="vela v1 alta"><span class="llama"></span></span>
+          <span class="vela v2"><span class="llama"></span></span>
+          <span class="vela v3 baja"><span class="llama"></span></span>
+          <span class="vela v4 media"><span class="llama"></span></span>
+          <span class="vela v5"><span class="llama"></span></span>
         </div>
         <p id="deseo" hidden>¡Feliz cumpleaños, Maca!</p>
         <button id="velas" type="button">Sopla las velas</button>
