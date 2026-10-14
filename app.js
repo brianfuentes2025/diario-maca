@@ -108,18 +108,29 @@ function htmlDedicatoria(cuentas) {
     </article>`;
 }
 
+function claseRecuerdos(fotos, videos) {
+  if (videos.length && fotos.length >= 5) return "recuerdos plano-video";
+  if (fotos.length >= 8) return "recuerdos ocho";
+  if (fotos.length >= 5) return "recuerdos cinco";
+  if (fotos.length <= 1 && !videos.length) return "recuerdos uno";
+  return "recuerdos";
+}
+
 function htmlDia(dia, numero, total) {
   const fotos = dia.items.filter((item) => item.tipo === "foto");
   const videos = dia.items.filter((item) => item.tipo === "video");
-  const clase = fotos.length <= 1 && !videos.length ? "recuerdos uno" : fotos.length >= 6 ? "recuerdos muchas" : "recuerdos";
+  const clase = claseRecuerdos(fotos, videos);
+  const densa = fotos.length >= 5;
   const horas = dia.items.map((item) => item.hora);
   const rango = horas.length > 1 ? `${horas[0]} – ${horas[horas.length - 1]}` : horas[0] || "";
   const piezasDia = dia.items.map((item) => {
     if (item.tipo === "video") {
       const poster = item.poster ? ` poster="${item.poster}"` : "";
+      const horizontal = item.src.includes("20260815_180132");
+      const video = `<video muted loop playsinline preload="metadata"${poster} src="${item.src}"></video>`;
       return `
-        <figure class="film">
-          <video muted loop playsinline preload="metadata"${poster} src="${item.src}"></video>
+        <figure class="film${horizontal ? " horizontal" : ""}">
+          ${horizontal ? `<div class="giro-video">${video}</div>` : video}
           <figcaption>${item.hora}</figcaption>
           <button class="ver-video" type="button" hidden>Ver video</button>
           <p class="aviso-video" hidden>Este video no se pudo reproducir.</p>
@@ -143,9 +154,23 @@ function htmlDia(dia, numero, total) {
   ].filter(Boolean).join(" · ");
 
   return `
-    <article class="hoja">
+    <article class="hoja${densa ? " densa" : ""}">
       ${cabecera(momento(dia), dia.fecha, detalle, numero)}
+      <div class="contexto">
+        <p class="contexto-etiqueta">Este día</p>
+        <p class="contexto-texto" contenteditable="true" data-nota="${dia.id}" spellcheck="true"></p>
+      </div>
       <div class="${clase}">${piezasDia}</div>
+      <footer class="colofon"><span>Para Maca</span><span>${folio(numero)}</span></footer>
+    </article>`;
+}
+
+function htmlCarta(numero) {
+  return `
+    <article class="hoja misiva">
+      ${cabecera("Una carta", "Antes de las velas", "", numero)}
+      <p class="saludo-carta">Maca,</p>
+      <div class="cuerpo-carta" contenteditable="true" data-nota="carta" spellcheck="true"></div>
       <footer class="colofon"><span>Para Maca</span><span>${folio(numero)}</span></footer>
     </article>`;
 }
@@ -193,8 +218,9 @@ function abrirLibreta() {
     });
     return total;
   }, { dias: DIARIO.length, fotos: 0, videos: 0 });
-  const dias = DIARIO.map((dia, i) => htmlDia(dia, i + 3, DIARIO.length + 3));
-  const paginas = [htmlPortada(), htmlDedicatoria(cuentas), ...dias, htmlFinal(DIARIO.length + 3, DIARIO.length + 3)];
+  const dias = DIARIO.map((dia, i) => htmlDia(dia, i + 3, DIARIO.length + 4));
+  const numeroCarta = DIARIO.length + 3;
+  const paginas = [htmlPortada(), htmlDedicatoria(cuentas), ...dias, htmlCarta(numeroCarta), htmlFinal(numeroCarta + 1, numeroCarta + 1)];
   if (paginas.length % 2) paginas.push(`<article class="hoja vacia"></article>`);
   app.innerHTML = `
     <div class="libro">
@@ -213,6 +239,18 @@ function abrirLibreta() {
     </div>`;
   indiceHoja = 0;
   mostrarHoja(0);
+  prepararNotas();
+}
+
+function prepararNotas() {
+  document.querySelectorAll("[data-nota]").forEach((nodo) => {
+    const clave = `diario-nota:${nodo.dataset.nota}`;
+    const guardado = localStorage.getItem(clave);
+    if (guardado) nodo.textContent = guardado;
+    nodo.addEventListener("input", () => {
+      localStorage.setItem(clave, nodo.textContent.trim() ? nodo.textContent : "");
+    });
+  });
 }
 
 function listaHojas() {
@@ -437,7 +475,7 @@ function dibujarConfeti() {
 }
 
 function alPointerDown(evento) {
-  if (evento.target.closest("video, button, img, a")) return;
+  if (evento.target.closest("video, button, img, a, [contenteditable]")) return;
   toqueX = evento.clientX;
 }
 
