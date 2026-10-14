@@ -254,12 +254,18 @@ function armarPaginas(cuentas) {
     htmlFinal(numeroCarta + 1, numeroCarta + 1),
   ];
   if (paginas.length % 2) paginas.push(`<article class="hoja vacia"></article>`);
-  const entradas = DIARIO.map((dia, i) => ({
-    numero: i + 3,
-    titulo: momento(dia),
-    fecha: dia.fecha,
-    pliego: 1 + Math.floor((2 + i) / 2),
-  }));
+  const entradas = DIARIO.map((dia, i) => {
+    const horas = dia.items.map((item) => item.hora).filter(Boolean);
+    const hora = horas.length > 1 && horas[0] !== horas[horas.length - 1]
+      ? `${horas[0]} – ${horas[horas.length - 1]}`
+      : (horas[0] || "");
+    return {
+      numero: i + 3,
+      titulo: hora,
+      fecha: dia.fecha,
+      pliego: 1 + Math.floor((2 + i) / 2),
+    };
+  });
   const indiceCarta = 2 + dias.length + 1;
   const pliegoCarta = 1 + Math.floor(indiceCarta / 2);
   entradas.push(
