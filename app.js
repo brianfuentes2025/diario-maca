@@ -126,6 +126,7 @@ function claseRecuerdos(fotos, videos, dia) {
   if (dia.id === "2026-09-06") return "recuerdos penultima";
   if (dia.id === "2026-09-08") return "recuerdos extremos";
   if (fotos.length >= 5) return "recuerdos cinco";
+  if (fotos.length === 3 && !videos.length) return "recuerdos tres";
   if (fotos.length <= 1 && !videos.length) return "recuerdos uno";
   return "recuerdos";
 }
@@ -240,11 +241,13 @@ function htmlPliegos(tapa, paginas) {
 function armarPaginas(cuentas) {
   const dias = DIARIO.map((dia, i) => htmlDia(dia, i + 3, DIARIO.length + 4));
   const numeroCarta = DIARIO.length + 3;
+  const hojaBlanca = `<article class="hoja vacia"><p class="sigue-hoja">Sigue</p></article>`;
+  const cartaALaIzquierda = (2 + dias.length) % 2 === 1;
   const paginas = [
     "",
     "",
     ...dias,
-    `<article class="hoja vacia"><p class="sigue-hoja">Sigue</p></article>`,
+    ...(cartaALaIzquierda ? [hojaBlanca] : []),
     htmlCarta(numeroCarta),
     htmlFinal(numeroCarta + 1, numeroCarta + 1),
   ];
@@ -261,7 +264,7 @@ function armarPaginas(cuentas) {
       pliego: 1 + Math.floor((2 + i) / 2),
     };
   });
-  const indiceCarta = 2 + dias.length + 1;
+  const indiceCarta = 2 + dias.length + (cartaALaIzquierda ? 1 : 0);
   const pliegoCarta = 1 + Math.floor(indiceCarta / 2);
   entradas.push(
     { numero: numeroCarta, titulo: "Una carta", fecha: "Antes de las velas", pliego: pliegoCarta },

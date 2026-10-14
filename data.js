@@ -11,6 +11,18 @@ const DIARIO = [
         "src": "assets/images/20251109_190403.jpg",
         "hora": "19:04",
         "alt": "Foto del 9 de noviembre de 2025, 19:04"
+      },
+      {
+        "tipo": "foto",
+        "src": "assets/images/20251110_193438.jpg",
+        "hora": "19:34",
+        "alt": "Foto del 9 de noviembre de 2025, 19:34"
+      },
+      {
+        "tipo": "foto",
+        "src": "assets/images/20251109_195018.jpg",
+        "hora": "19:50",
+        "alt": "Foto del 9 de noviembre de 2025, 19:50"
       }
     ]
   },
@@ -26,21 +38,6 @@ const DIARIO = [
         "src": "assets/images/20251112_215157.jpg",
         "hora": "21:51",
         "alt": "Foto del 12 de noviembre de 2025, 21:51"
-      }
-    ]
-  },
-  {
-    "id": "2025-11-19",
-    "fecha": "19 de noviembre de 2025",
-    "dia": "miércoles",
-    "titulo": "",
-    "nota": "",
-    "items": [
-      {
-        "tipo": "foto",
-        "src": "assets/images/20251119_225312.jpg",
-        "hora": "22:53",
-        "alt": "Foto del 19 de noviembre de 2025, 22:53"
       }
     ]
   },
