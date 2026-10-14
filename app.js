@@ -60,6 +60,13 @@ function folio(numero) {
   return String(numero).padStart(2, "0");
 }
 
+function escapar(texto) {
+  return String(texto || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
 function cabecera(titulo, fecha, extra, numero) {
   return `
     <header class="cabecera">
@@ -86,25 +93,35 @@ function htmlPortada() {
         <p class="dedicado">Para Maca</p>
         <p class="fecha-tapa">Feliz cumpleaños</p>
         <p class="arco">Nov 2025 — Sep 2026</p>
+        <button id="abrir-tapa" type="button">Abrir</button>
       </div>
     </article>`;
 }
 
-function htmlDedicatoria(cuentas) {
-  const desde = DIARIO[0]?.fecha || "";
-  const hasta = DIARIO[DIARIO.length - 1]?.fecha || "";
-  return `
-    <article class="hoja carta">
-      ${cabecera("Para vos", "La primera plana", "", 2)}
-      <p class="saludo">Maca,</p>
-      <p>Este diario ordena los días que quedaron guardados, del ${desde} al ${hasta}. Cada plana lleva su fecha, el momento del día y las fotos de esa hora.</p>
-      <ul class="fichas">
+function htmlIndice(entradas, esInicio, cuentas) {
+  const filas = entradas.map((entrada) => `
+    <li>
+      <button type="button" data-ir="${entrada.pliego}">
+        <span class="num">${folio(entrada.numero)}</span>
+        <span class="cuando">${escapar(entrada.fecha)}</span>
+        <em>${escapar(entrada.titulo)}</em>
+      </button>
+    </li>`).join("");
+  const intro = esInicio ? `
+      <p class="saludo">Índice</p>
+      <p class="pista-indice">Elegí un día, o empezá a hojear desde la primera plana.</p>
+      <ul class="fichas fichas-indice">
         <li><strong>${cuentas.dias}</strong><span>días</span></li>
         <li><strong>${cuentas.fotos}</strong><span>fotos</span></li>
         <li><strong>${cuentas.videos}</strong><span>videos</span></li>
-      </ul>
-      <p class="pista-hoja">Hojéala como una revista. Si hay un video, se mueve solo, en bucle, mientras esa plana está abierta.</p>
-      <button id="pasar-titulo" type="button">Hojear la siguiente</button>
+      </ul>` : `
+      <p class="sigue-indice">Sigue</p>`;
+  const cierre = esInicio ? "" : `<button id="pasar-titulo" type="button">Empezar a hojear</button>`;
+  return `
+    <article class="hoja indice">
+      ${intro}
+      <ol class="lista-indice">${filas}</ol>
+      ${cierre}
     </article>`;
 }
 
@@ -133,7 +150,14 @@ function htmlDia(dia, numero, total) {
           <video muted loop playsinline preload="metadata"${poster} src="${item.src}"></video>
           <div class="film-pie">
             <figcaption>${item.hora}</figcaption>
-            <button class="audio-video" type="button" aria-pressed="false">Oír video</button>
+            <span class="sonido">
+              <button class="audio-video" type="button" data-sonido="on" aria-label="Oír el video" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a4.5 4.5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+              <button class="audio-video" type="button" data-sonido="off" aria-label="Silenciar el video" aria-pressed="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9.5l4 5M21 9.5l-4 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </span>
           </div>
           <button class="ver-video" type="button" hidden>Ver video</button>
           <p class="aviso-video" hidden>Este video no se pudo reproducir.</p>
@@ -159,11 +183,8 @@ function htmlDia(dia, numero, total) {
   return `
     <article class="hoja${densa ? " densa" : ""}">
       ${cabecera(momento(dia), dia.fecha, detalle, numero)}
-      <div class="contexto">
-        <p class="contexto-etiqueta">Este día</p>
-        <p class="contexto-texto" contenteditable="true" data-nota="${dia.id}" spellcheck="true"></p>
-      </div>
       <div class="${clase}">${piezasDia}</div>
+      <p class="nota-hoja">${escapar(dia.nota)}</p>
       <footer class="colofon"><span>Para Maca</span><span>${folio(numero)}</span></footer>
     </article>`;
 }
@@ -202,18 +223,53 @@ function conLado(html, lado) {
   return html.replace('class="hoja', `class="hoja ${lado}`);
 }
 
-function htmlPliegos(paginas) {
-  const pliegos = [];
+function htmlPliegos(tapa, paginas) {
+  const pliegos = [`
+    <section class="pliego tapa activa">
+      <div class="plana izquierda">${conLado(tapa, "lado-izq")}</div>
+      <div class="lomo" aria-hidden="true"></div>
+      <div class="plana derecha"></div>
+    </section>`];
   for (let i = 0; i < paginas.length; i += 2) {
     const derecha = paginas[i + 1] || `<article class="hoja vacia"></article>`;
     pliegos.push(`
-      <section class="pliego ${i === 0 ? "activa" : "espera"}">
+      <section class="pliego espera${i === 0 ? " indice" : ""}">
         <div class="plana izquierda">${conLado(paginas[i], "lado-izq")}</div>
         <div class="lomo" aria-hidden="true"></div>
         <div class="plana derecha">${conLado(derecha, "lado-der")}</div>
       </section>`);
   }
   return pliegos.join("");
+}
+
+function armarPaginas(cuentas) {
+  const dias = DIARIO.map((dia, i) => htmlDia(dia, i + 3, DIARIO.length + 4));
+  const numeroCarta = DIARIO.length + 3;
+  const paginas = [
+    "",
+    "",
+    ...dias,
+    `<article class="hoja vacia"></article>`,
+    htmlCarta(numeroCarta),
+    htmlFinal(numeroCarta + 1, numeroCarta + 1),
+  ];
+  if (paginas.length % 2) paginas.push(`<article class="hoja vacia"></article>`);
+  const entradas = DIARIO.map((dia, i) => ({
+    numero: i + 3,
+    titulo: momento(dia),
+    fecha: dia.fecha,
+    pliego: 1 + Math.floor((2 + i) / 2),
+  }));
+  const indiceCarta = 2 + dias.length + 1;
+  const pliegoCarta = 1 + Math.floor(indiceCarta / 2);
+  entradas.push(
+    { numero: numeroCarta, titulo: "Una carta", fecha: "Antes de las velas", pliego: pliegoCarta },
+    { numero: numeroCarta + 1, titulo: "Hoy es tu día", fecha: "Feliz cumpleaños", pliego: pliegoCarta },
+  );
+  const mitad = Math.ceil(entradas.length / 2);
+  paginas[0] = htmlIndice(entradas.slice(0, mitad), true, cuentas);
+  paginas[1] = htmlIndice(entradas.slice(mitad), false, cuentas);
+  return paginas;
 }
 
 function abrirLibreta() {
@@ -226,31 +282,24 @@ function abrirLibreta() {
     });
     return total;
   }, { dias: DIARIO.length, fotos: 0, videos: 0 });
-  const dias = DIARIO.map((dia, i) => htmlDia(dia, i + 3, DIARIO.length + 4));
-  const numeroCarta = DIARIO.length + 3;
-  const paginas = [
-    htmlPortada(),
-    htmlDedicatoria(cuentas),
-    ...dias,
-    `<article class="hoja vacia"></article>`,
-    htmlCarta(numeroCarta),
-    htmlFinal(numeroCarta + 1, numeroCarta + 1),
-  ];
-  if (paginas.length % 2) paginas.push(`<article class="hoja vacia"></article>`);
+  const paginas = armarPaginas(cuentas);
   app.innerHTML = `
-    <div class="libro">
+    <div class="libro tapa">
       <header class="revista-barra">
         <p>Diario de vida</p>
         <p>Para Maca</p>
       </header>
       <button id="pasar-atras" class="pasar" type="button" aria-label="Hoja anterior"><span aria-hidden="true">‹</span><small>Anterior</small></button>
       <div class="ventana" id="ventana">
-        <div id="riel">${htmlPliegos(paginas)}</div>
+        <div id="riel">${htmlPliegos(htmlPortada(), paginas)}</div>
         <button id="canto-atras" class="canto canto-izq" type="button" aria-label="Hoja anterior"></button>
-        <button id="canto-adelante" class="canto canto-der" type="button" aria-label="Hojear"></button>
+        <button id="canto-adelante" class="canto canto-der" type="button" aria-label="Abrir"></button>
       </div>
-      <button id="pasar-adelante" class="pasar" type="button" aria-label="Hojear"><span aria-hidden="true">›</span><small>Hojear</small></button>
-      <p class="contador" id="contador"></p>
+      <button id="pasar-adelante" class="pasar" type="button" aria-label="Abrir"><span aria-hidden="true">›</span><small>Abrir</small></button>
+      <div class="pie-libro">
+        <p class="contador" id="contador"></p>
+        <button id="volver-inicio" class="volver" type="button" hidden>Volver al inicio</button>
+      </div>
     </div>`;
   indiceHoja = 0;
   mostrarHoja(0);
@@ -287,12 +336,32 @@ function mostrarHoja(nueva) {
   });
   const alInicio = indiceHoja === 0;
   const alFinal = indiceHoja === hojas.length - 1;
+  const libro = document.querySelector(".libro");
+  if (libro && !libro.classList.contains("abriendo")) libro.classList.toggle("tapa", alInicio);
   document.getElementById("pasar-atras").disabled = alInicio;
   document.getElementById("canto-atras").disabled = alInicio;
   document.getElementById("pasar-adelante").disabled = alFinal;
   document.getElementById("canto-adelante").disabled = alFinal;
-  const desde = indiceHoja * 2 + 1;
-  document.getElementById("contador").textContent = `Planas ${folio(desde)} – ${folio(desde + 1)}`;
+  const pasarAdelante = document.getElementById("pasar-adelante");
+  const cantoAdelante = document.getElementById("canto-adelante");
+  const textoPaso = alInicio ? "Abrir" : "Hojear";
+  if (pasarAdelante) {
+    pasarAdelante.setAttribute("aria-label", textoPaso);
+    const pequeno = pasarAdelante.querySelector("small");
+    if (pequeno) pequeno.textContent = textoPaso;
+  }
+  if (cantoAdelante) cantoAdelante.setAttribute("aria-label", textoPaso);
+  document.getElementById("volver-inicio").hidden = !alFinal;
+  document.getElementById("contador").textContent = textoContador(hojas[indiceHoja]);
+}
+
+function textoContador(pliego) {
+  if (!pliego || pliego.classList.contains("tapa")) return "Tapa";
+  if (pliego.classList.contains("indice")) return "Índice";
+  const numeros = [...pliego.querySelectorAll(".edicion")].map((nodo) => nodo.textContent.replace("Plana ", ""));
+  if (numeros.length === 2) return `Planas ${numeros[0]} – ${numeros[1]}`;
+  if (numeros.length === 1) return `Plana ${numeros[0]}`;
+  return "";
 }
 
 function hojaDe(pliego, lado) {
@@ -305,11 +374,70 @@ function pasar(delta) {
   const hojas = listaHojas();
   if (destino < 0 || destino >= hojas.length) return;
   const reducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (indiceHoja === 0 && delta > 0) {
+    if (reducido) mostrarHoja(destino);
+    else abrirTapa();
+    return;
+  }
+  if (destino === 0) {
+    if (reducido) mostrarHoja(0);
+    else cerrarTapa();
+    return;
+  }
   if (reducido) {
     mostrarHoja(destino);
     return;
   }
   voltear(delta);
+}
+
+function abrirTapa() {
+  volteando = true;
+  document.body.classList.add("hojeando");
+  const libro = document.querySelector(".libro");
+  const ventana = document.getElementById("ventana");
+  const hojas = listaHojas();
+  const portada = hojas[0].querySelector(".hoja.portada");
+  const ancho = ventana.getBoundingClientRect().width;
+  const vuelo = document.createElement("div");
+  vuelo.className = "vuelo-tapa";
+  vuelo.style.setProperty("--ancho-tapa", `${ancho}px`);
+  vuelo.appendChild(portada);
+  ventana.appendChild(vuelo);
+  hojas[1].classList.add("debajo");
+  hojas[1].classList.remove("espera");
+  libro.classList.add("abriendo");
+  libro.classList.remove("tapa");
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => vuelo.classList.add("abierta"));
+  });
+  window.setTimeout(() => {
+    const hueco = hojas[0].querySelector(".plana.izquierda");
+    if (hueco && portada) hueco.appendChild(portada);
+    vuelo.remove();
+    libro.classList.remove("abriendo");
+    mostrarHoja(1);
+    volteando = false;
+    document.body.classList.remove("hojeando");
+  }, 980);
+}
+
+function cerrarTapa() {
+  volteando = true;
+  document.body.classList.add("hojeando");
+  const libro = document.querySelector(".libro");
+  libro.classList.add("cerrando");
+  window.setTimeout(() => {
+    libro.classList.remove("cerrando");
+    mostrarHoja(0);
+    volteando = false;
+    document.body.classList.remove("hojeando");
+  }, 720);
+}
+
+function volverAlInicio() {
+  if (volteando || indiceHoja === 0) return;
+  mostrarHoja(0);
 }
 
 function voltear(delta) {
@@ -384,36 +512,51 @@ function reproducirVideo(boton) {
   if (video) reproducirGif(video);
 }
 
+function marcarSonido(film, activo) {
+  film.querySelectorAll(".audio-video").forEach((boton) => {
+    const esEscuchar = boton.dataset.sonido === "on";
+    boton.setAttribute("aria-pressed", String(esEscuchar === activo));
+  });
+}
+
 function alternarSonido(boton) {
-  const video = boton.closest(".film")?.querySelector("video");
+  const film = boton.closest(".film");
+  const video = film?.querySelector("video");
   if (!video) return;
-  const activar = video.muted;
-  document.querySelectorAll(".film video").forEach((otro) => {
-    if (otro === video) return;
-    otro.muted = true;
-    delete otro.dataset.conSonido;
-    const otroBoton = otro.closest(".film")?.querySelector(".audio-video");
-    if (otroBoton) {
-      otroBoton.setAttribute("aria-pressed", "false");
-      otroBoton.textContent = "Oír video";
-    }
+  const activar = boton.dataset.sonido === "on";
+  document.querySelectorAll(".film").forEach((otro) => {
+    if (otro === film) return;
+    const otroVideo = otro.querySelector("video");
+    if (!otroVideo) return;
+    otroVideo.muted = true;
+    delete otroVideo.dataset.conSonido;
+    marcarSonido(otro, false);
   });
   video.muted = !activar;
   if (activar) video.dataset.conSonido = "1";
   else delete video.dataset.conSonido;
-  boton.setAttribute("aria-pressed", activar ? "true" : "false");
-  boton.textContent = activar ? "Silenciar" : "Oír video";
+  marcarSonido(film, activar);
   if (activar) video.play().catch(() => {});
 }
 
 function alClick(evento) {
   const boton = evento.target.closest("button");
-  if (boton && (boton.id === "pasar-titulo" || boton.id === "pasar-adelante" || boton.id === "canto-adelante")) {
+  if (boton && (boton.id === "abrir-tapa" || boton.id === "pasar-titulo" || boton.id === "pasar-adelante" || boton.id === "canto-adelante")) {
     pasar(1);
     return;
   }
   if (boton && (boton.id === "pasar-atras" || boton.id === "canto-atras")) {
     pasar(-1);
+    return;
+  }
+  if (boton && boton.id === "volver-inicio") {
+    volverAlInicio();
+    return;
+  }
+  const salto = evento.target.closest("[data-ir]");
+  if (salto) {
+    const destino = Number(salto.dataset.ir);
+    if (!volteando && destino !== indiceHoja) mostrarHoja(destino);
     return;
   }
   if (boton && boton.classList.contains("audio-video")) {
