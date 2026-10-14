@@ -372,6 +372,7 @@ function prepararNotas() {
     if (guardado) nodo.textContent = guardado;
     nodo.addEventListener("input", () => {
       localStorage.setItem(clave, nodo.textContent.trim() ? nodo.textContent : "");
+      if (nodo.classList.contains("cuerpo-carta")) ajustarCarta();
     });
   });
 }
@@ -412,6 +413,32 @@ function mostrarHoja(nueva) {
   if (cantoAdelante) cantoAdelante.setAttribute("aria-label", textoPaso);
   document.getElementById("volver-inicio").hidden = !alFinal;
   document.getElementById("contador").textContent = textoContador(hojas[indiceHoja]);
+  requestAnimationFrame(ajustarCarta);
+}
+
+function ajustarCarta() {
+  const carta = document.querySelector(".pliego.activa .cuerpo-carta");
+  if (!carta) return;
+  const footer = carta.closest(".hoja").querySelector(".colofon");
+  const cabe = () => {
+    const rango = document.createRange();
+    rango.selectNodeContents(carta);
+    const rects = rango.getClientRects();
+    let fondo = 0;
+    for (const rect of rects) fondo = Math.max(fondo, rect.bottom);
+    return fondo <= footer.getBoundingClientRect().top - 14;
+  };
+  let tamano = 15;
+  carta.style.lineHeight = "1.32";
+  carta.style.fontSize = `${tamano}px`;
+  while (tamano < 28 && cabe()) {
+    tamano += 0.5;
+    carta.style.fontSize = `${tamano}px`;
+  }
+  while (tamano > 13 && !cabe()) {
+    tamano -= 0.5;
+    carta.style.fontSize = `${tamano}px`;
+  }
 }
 
 function textoContador(pliego) {
@@ -752,7 +779,10 @@ document.addEventListener("keydown", (evento) => {
   if (evento.key === "ArrowRight") pasar(1);
   if (evento.key === "ArrowLeft") pasar(-1);
 });
-window.addEventListener("resize", ajustarLienzo);
+window.addEventListener("resize", () => {
+  ajustarLienzo();
+  ajustarCarta();
+});
 app.addEventListener("click", alClick);
 app.addEventListener("pointerdown", alPointerDown);
 window.addEventListener("pointerup", alPointerUp);

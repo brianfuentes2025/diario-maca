@@ -671,10 +671,11 @@ body.abierta .lluvia { opacity: 0; }
   flex: 1;
   min-height: 0;
   column-count: 2;
-  column-gap: 14px;
+  column-gap: 22px;
+  column-fill: balance;
   font-family: "Kalam", var(--mano);
-  font-size: 0.68rem;
-  line-height: 1.16;
+  font-size: 1rem;
+  line-height: 1.32;
   background-image: none;
 }
 
