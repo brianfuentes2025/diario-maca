@@ -18,11 +18,32 @@ let toqueX = null;
 const fondo = new Audio("assets/audio/Antes%20De%20Los%2030.mp3");
 fondo.loop = true;
 fondo.preload = "auto";
+let fondoPausadoAMano = false;
+
+function pintarMusica() {
+  const boton = document.getElementById("fondo-musica");
+  if (!boton) return;
+  const sonando = !fondo.paused;
+  boton.setAttribute("aria-pressed", String(sonando));
+  boton.textContent = sonando ? "Pausar música" : "Seguir música";
+}
 
 function iniciarFondo() {
-  if (!fondo.paused) return;
+  if (fondoPausadoAMano || !fondo.paused) return;
   const intento = fondo.play();
-  if (intento) intento.catch(() => {});
+  if (intento) intento.then(pintarMusica).catch(() => {});
+}
+
+function alternarFondo() {
+  if (fondo.paused) {
+    fondoPausadoAMano = false;
+    const intento = fondo.play();
+    if (intento) intento.then(pintarMusica).catch(() => {});
+  } else {
+    fondoPausadoAMano = true;
+    fondo.pause();
+  }
+  pintarMusica();
 }
 
 function giroDe(texto) {
@@ -326,6 +347,7 @@ function abrirLibreta() {
       <button id="pasar-adelante" class="pasar" type="button" aria-label="Abrir"><span aria-hidden="true">›</span><small>Abrir</small></button>
       <div class="pie-libro">
         <p class="contador" id="contador"></p>
+        <button id="fondo-musica" class="musica" type="button" aria-pressed="false">Seguir música</button>
         <button id="volver-inicio" class="volver" type="button" hidden>Volver al inicio</button>
       </div>
     </div>`;
@@ -568,8 +590,12 @@ function alternarSonido(boton) {
 }
 
 function alClick(evento) {
-  iniciarFondo();
   const boton = evento.target.closest("button");
+  if (boton && boton.id === "fondo-musica") {
+    alternarFondo();
+    return;
+  }
+  iniciarFondo();
   if (boton && (boton.id === "abrir-tapa" || boton.id === "pasar-titulo" || boton.id === "pasar-adelante" || boton.id === "canto-adelante")) {
     pasar(1);
     return;
@@ -688,7 +714,7 @@ function dibujarConfeti() {
 }
 
 function alPointerDown(evento) {
-  iniciarFondo();
+  if (!evento.target.closest("#fondo-musica")) iniciarFondo();
   if (evento.target.closest("video, button, img, a, [contenteditable]")) return;
   toqueX = evento.clientX;
 }

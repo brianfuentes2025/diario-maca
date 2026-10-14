@@ -987,9 +987,10 @@ body.hojeando .pasar { pointer-events: none; }
   grid-column: 1 / -1;
   grid-row: 3;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 18px;
+  gap: 12px 18px;
 }
 
 .contador {
@@ -1013,6 +1014,21 @@ body.hojeando .pasar { pointer-events: none; }
 }
 
 .volver:hover { background: rgba(243, 234, 223, 0.12); }
+
+.musica {
+  border: 1px solid rgba(243, 234, 223, 0.5);
+  border-radius: 999px;
+  background: transparent;
+  color: #f3eadf;
+  padding: 5px 12px;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.musica[aria-pressed="true"] { background: rgba(243, 234, 223, 0.16); }
+.musica:hover { background: rgba(243, 234, 223, 0.12); }
 
 .vuelta {
   position: absolute;
