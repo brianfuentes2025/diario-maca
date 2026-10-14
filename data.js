@@ -4,7 +4,7 @@ const DIARIO = [
     "fecha": "9 de noviembre de 2025",
     "dia": "domingo",
     "titulo": "Parque Bicentenario",
-    "nota": "Vueltecita por el Parque Bicentenario, que manera de ver Flamencos! y darle comida a los peces jajaja",
+    "nota": "Vueltecita por el Parque Bicentenario, que manera de ver Flamencos! y darle comida a los peces jajaja Igual hicimos intercambio con el helado, te encantaron las frutillas con chocolate dubai",
     "items": [
       {
         "tipo": "foto",
