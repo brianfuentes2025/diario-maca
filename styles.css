@@ -354,18 +354,31 @@ body.abierta .lluvia { opacity: 0; }
 
 .hoja.indice {
   overflow: hidden;
+  align-items: stretch;
+}
+
+.hoja.indice .saludo,
+.pista-indice,
+.sigue-indice {
+  text-align: center;
 }
 
 .pista-indice {
-  margin: 4px 0 0;
+  margin: 6px auto 0;
+  max-width: 28em;
   color: var(--tinta-suave);
   font-size: 0.95rem;
 }
 
-.fichas-indice { margin: 10px 0 6px; }
+.fichas.fichas-indice {
+  grid-template-columns: repeat(2, minmax(88px, 150px));
+  justify-content: center;
+  width: min(100%, 340px);
+  margin: 16px auto 10px;
+}
 
 .sigue-indice {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   color: var(--tinta-suave);
   font-size: 0.78rem;
   letter-spacing: 0.16em;
@@ -374,27 +387,37 @@ body.abierta .lluvia { opacity: 0; }
 
 .lista-indice {
   list-style: none;
-  margin: 4px 0 0;
+  flex: 1 1 auto;
+  margin: 8px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  justify-content: space-between;
+  gap: 0;
+  min-height: 0;
+}
+
+.lista-indice li {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
   min-height: 0;
 }
 
 .lista-indice button {
   width: 100%;
+  height: 100%;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) auto;
-  gap: 8px;
-  align-items: baseline;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
   border: 0;
   border-bottom: 1px dotted rgba(36, 28, 24, 0.22);
   background: transparent;
   color: inherit;
   font: inherit;
   text-align: left;
-  padding: 4px 2px;
+  padding: 0 4px;
   cursor: pointer;
 }
 
@@ -407,15 +430,20 @@ body.abierta .lluvia { opacity: 0; }
 
 .lista-indice .cuando {
   font-family: var(--mano);
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   line-height: 1.05;
 }
 
 .lista-indice em {
   font-style: normal;
   color: var(--tinta-suave);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   white-space: nowrap;
+}
+
+.hoja.indice #pasar-titulo {
+  align-self: center;
+  margin-top: 14px;
 }
 
 .indice .saludo,
@@ -609,12 +637,12 @@ body.abierta .lluvia { opacity: 0; }
 .hoja:has(.film) .polaroid img { max-height: 20cqh; }
 
 .nota-hoja {
-  margin: 12px 2px 0;
-  min-height: 2.8em;
+  margin: 10px 2px 0;
+  flex: 0 0 auto;
   font-family: "Kalam", var(--mano);
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 400;
-  line-height: 1.4;
+  line-height: 1.35;
   color: #4a382f;
 }
 
@@ -634,22 +662,20 @@ body.abierta .lluvia { opacity: 0; }
   line-height: 1;
 }
 
-.cuerpo-carta {
+.hoja.misiva h3 { font-size: 1.45rem; }
+
+.hoja.misiva .cuerpo-carta {
   margin: 0;
   outline: none;
   white-space: pre-wrap;
   flex: 1;
-  min-height: 8rem;
-  margin-top: 8px;
-  font-family: "La Belle Aurore", var(--mano);
-  font-size: 1.7rem;
-  line-height: 2rem;
-  background-image: repeating-linear-gradient(
-    transparent 0,
-    transparent calc(2rem - 1px),
-    rgba(124, 48, 64, 0.25) calc(2rem - 1px),
-    rgba(124, 48, 64, 0.25) 2rem
-  );
+  min-height: 0;
+  column-count: 2;
+  column-gap: 14px;
+  font-family: "Kalam", var(--mano);
+  font-size: 0.68rem;
+  line-height: 1.16;
+  background-image: none;
 }
 
 .hoja.densa { overflow: hidden; }

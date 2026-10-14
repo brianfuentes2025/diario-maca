@@ -186,11 +186,26 @@ function htmlDia(dia, numero, total) {
 }
 
 function htmlCarta(numero) {
+  const carta = [
+    "Pendeja, te deseo un muy feliz cumpleaños. Te pido disculpas por no hablarte en todo el día, pero era parte de la sorpresa jajaja. Espero que hayas disfrutado mucho tu día y que este nuevo año de vida venga cargado de cosas bonitas, nuevas experiencias y muchas razones para reírte.",
+    "",
+    "Agradezco de verdad ser parte de tu vida y poder compartir tantas anécdotas contigo. Has sido una partner y una mejor amiga indispensable para mí. Sé que no siempre expreso las cosas tanto como debiese, pero quiero que sepas que eres una persona muy importante en mi vida y que valoro muchísimo tenerte en ella.",
+    "",
+    "Cada una de estas fotos guarda un recuerdo de algo que vivimos juntos. Algunas son de panoramas increíbles, otras de salidas improvisadas y otras de esos días en los que literalmente no hicimos nada jajaja. Pero, al final, creo que eso es lo bonito de todo esto: que no necesitamos hacer algo extraordinario para pasarlo bien, porque hasta los panoramas más simples terminan convirtiéndose en anécdotas que recordamos y nos dan risa después.",
+    "",
+    "Gracias por escucharme mil veces hablar de los mismos temas sobre mi pasado, por tenerme paciencia y por ayudarme a sobrellevar cosas que no siempre han sido fáciles para mí. Todas las conversaciones que has escuchado de lo mismo, pero estas ahí siempre.",
+    "",
+    "También quiero que sepas que espero poder estar para ti de la misma manera. Para escucharte cuando lo necesites, o solamente acompañarte sin decirnos nada. Gracias por estar ahí, por tu amistad y por dejarme ser parte de tu vida (que es bastante complicado formar parte de ella).",
+    "",
+    "Feliz cumpleaños pinche mujer, espero que la vida te siga regalando todo lo que te mereces, y que nadie te haga dudar de que así lo es. Y, por si no te lo digo lo suficiente, quiero que sepas que te quiero mucho y que me alegra muchísimo haberte conocido y que nuestros caminos se hayan cruzado. Gracias por ser mi mejor amiga.",
+    "",
+    "Con cariño, el mas pendejo de Chile, el gato de montaña, el hombre mas mentiroso.",
+    "Brian",
+  ].join("\n");
   return `
     <article class="hoja misiva">
-      ${cabecera("Una carta", "Antes de las velas", "", numero)}
-      <p class="saludo-carta">Maca,</p>
-      <div class="cuerpo-carta" contenteditable="true" data-nota="carta" spellcheck="true"></div>
+      ${cabecera("Feliz Cumpleaños Pendeja", "Antes de las velas", "", numero)}
+      <div class="cuerpo-carta" contenteditable="true" data-nota="carta-brian" spellcheck="true">${escapar(carta)}</div>
       <footer class="colofon"><span>Para Maca</span><span>${folio(numero)}</span></footer>
     </article>`;
 }
