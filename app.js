@@ -15,6 +15,15 @@ let piezas = [];
 let animando = false;
 let volteando = false;
 let toqueX = null;
+const fondo = new Audio("assets/audio/Antes%20De%20Los%2030.mp3");
+fondo.loop = true;
+fondo.preload = "auto";
+
+function iniciarFondo() {
+  if (!fondo.paused) return;
+  const intento = fondo.play();
+  if (intento) intento.catch(() => {});
+}
 
 function giroDe(texto) {
   let valor = 0;
@@ -559,6 +568,7 @@ function alternarSonido(boton) {
 }
 
 function alClick(evento) {
+  iniciarFondo();
   const boton = evento.target.closest("button");
   if (boton && (boton.id === "abrir-tapa" || boton.id === "pasar-titulo" || boton.id === "pasar-adelante" || boton.id === "canto-adelante")) {
     pasar(1);
@@ -678,6 +688,7 @@ function dibujarConfeti() {
 }
 
 function alPointerDown(evento) {
+  iniciarFondo();
   if (evento.target.closest("video, button, img, a, [contenteditable]")) return;
   toqueX = evento.clientX;
 }
@@ -696,6 +707,7 @@ visor.addEventListener("click", (evento) => {
 document.getElementById("visor-prev").addEventListener("click", () => pasoVisor(-1));
 document.getElementById("visor-next").addEventListener("click", () => pasoVisor(1));
 document.addEventListener("keydown", (evento) => {
+  iniciarFondo();
   if (!visor.hidden) {
     if (evento.key === "Escape") cerrarVisor();
     if (evento.key === "ArrowRight") pasoVisor(1);
