@@ -419,23 +419,28 @@ function mostrarHoja(nueva) {
 function ajustarCarta() {
   const carta = document.querySelector(".pliego.activa .cuerpo-carta");
   if (!carta) return;
+  const plana = carta.closest(".plana");
   const footer = carta.closest(".hoja").querySelector(".colofon");
   const cabe = () => {
     const rango = document.createRange();
     rango.selectNodeContents(carta);
     const rects = rango.getClientRects();
-    let fondo = 0;
-    for (const rect of rects) fondo = Math.max(fondo, rect.bottom);
-    return fondo <= footer.getBoundingClientRect().top - 14;
+    const limiteAbajo = footer.getBoundingClientRect().top - 14;
+    const limiteDerecha = plana.getBoundingClientRect().right - 12;
+    for (const rect of rects) {
+      if (rect.width < 1) continue;
+      if (rect.bottom > limiteAbajo || rect.right > limiteDerecha) return false;
+    }
+    return true;
   };
-  let tamano = 15;
+  let tamano = 12;
   carta.style.lineHeight = "1.32";
   carta.style.fontSize = `${tamano}px`;
   while (tamano < 28 && cabe()) {
     tamano += 0.5;
     carta.style.fontSize = `${tamano}px`;
   }
-  while (tamano > 13 && !cabe()) {
+  while (tamano > 10 && !cabe()) {
     tamano -= 0.5;
     carta.style.fontSize = `${tamano}px`;
   }

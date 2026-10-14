@@ -662,14 +662,24 @@ body.abierta .lluvia { opacity: 0; }
   line-height: 1;
 }
 
+.hoja.misiva {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .hoja.misiva h3 { font-size: 1.45rem; }
 
 .hoja.misiva .cuerpo-carta {
   margin: 0;
   outline: none;
   white-space: pre-wrap;
-  flex: 1;
+  overflow-wrap: anywhere;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
   column-count: 2;
   column-gap: 22px;
   column-fill: balance;
